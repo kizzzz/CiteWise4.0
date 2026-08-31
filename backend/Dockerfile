@@ -7,12 +7,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml .
-RUN pip install --no-cache-dir .
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 RUN mkdir -p uploads
 
 EXPOSE 5329
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5329"]
+# Render 注入 PORT 环境变量；本地默认 5329
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-5329}"]
